@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elena &amp; Marco</title>
+<meta name="description" content="You are invited to the wedding of Elena & Marco">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="images/hero.jpg">
+<link rel="preload" as="image" href="images/satin-frame.jpg">
+<!-- Tailwind (utility classes). Preflight is off so it doesn't reset the hand-written styles below. -->
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+  tailwind.config = {
+    corePlugins: { preflight: false },
+    theme: { extend: {
+      colors: { ink: "#4f434a", "ink-soft": "#7b6c75", paper: "#ece3e7", band: "#6f6c88" },
+      fontFamily: { script: ['"Pinyon Script"', "cursive"], serif: ['"Cormorant Garamond"', "Georgia", "serif"], sans: ["Jost", "system-ui", "sans-serif"] }
+    } }
+  };
+</script>
+<style>
+  /* ============ EDIT COLORS HERE ============ */
+  :root {
+    --bg: #d9ccd3;
+    --paper: #ece3e7;
+    --paper-2: #e4d8de;
+    --ink: #4f434a;
+    --ink-soft: #7b6c75;
+    --line: #a8979f;
+    --band: #6f6c88;
+    --band-2: #5f5c78;
+    --gold: #d8c7a6;
+    --script: "Pinyon Script", cursive;
+    --serif: "Cormorant Garamond", Georgia, serif;
+    --sans: "Jost", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body.locked { overflow: hidden; height: 100vh; }
+
+  /* Desktop: show the invitation as a centered "phone-width" column */
+  .page {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--paper);
+    box-shadow: 0 0 80px rgba(60, 40, 55, .25);
+    position: relative;
+    overflow: hidden;
+  }
+  .backdrop { position: fixed; inset: 0; z-index: -1; }
+  .backdrop svg { width: 100%; height: 100%; display: block; }
+
+  section { position: relative; padding: 84px 32px; text-align: center; }
+
+  .script { font-family: var(--script); font-weight: 400; line-height: 1; color: var(--ink); }
+  .serif { font-family: var(--serif); }
+  .caps { font-family: var(--sans); text-transform: uppercase; letter-spacing: .28em; font-size: 11px; color: var(--ink-soft); }
+  h2.title { font-family: var(--serif); font-weight: 400; font-size: 40px; letter-spacing: .02em; line-height: 1.05; }
+  h2.script { font-size: 58px; }
+  p.body { font-size: 13.5px; line-height: 1.75; color: var(--ink-soft); max-width: 320px; margin: 0 auto; }
+  .btn {
+    display: inline-block; margin-top: 26px; padding: 14px 30px;
+    border: 1px solid var(--line); outline: 1px solid var(--line); outline-offset: 3px;
+    font-family: var(--sans); font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--ink); text-decoration: none; background: transparent; cursor: pointer;
+    transition: background .3s, color .3s;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 1.1s ease, transform 1.1s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  .d1 { transition-delay: .15s; } .d2 { transition-delay: .3s; } .d3 { transition-delay: .45s; }
+
+  /* ============ ENVELOPE INTRO ============ */
+  /* Back of an envelope: body with a V opening, satin lining inside, and a top flap
+     that carries the wax seal on its tip and folds up when the seal is tapped. */
+  .intro { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: center; transition: opacity 1.1s ease; }
+  .intro-inner { position: relative; width: 100%; max-width: 480px; height: 100%; overflow: hidden; background: #8f7b8b; }
+  .layer { position: absolute; inset: 0; }
+  .env { position: absolute; inset: 0; perspective: 1700px; perspective-origin: 50% 35%; transition: transform 1.3s cubic-bezier(.5,0,.2,1); }
+
+  /* inside of the envelope */
+  /* the framed satin from the main section, so opening the envelope fades straight into it */
+  .env-lining { background: #d9cdd5 url("images/satin-frame.jpg") center / cover no-repeat; }
+  .intro.s2 .env-lining::after { opacity: 0; }
+  /* soft shadow at the top while it's still inside the pocket, lifting as the envelope slides away */
+  .env-lining::after {
+    content: ""; position: absolute; inset: 0; transition: opacity 1.5s ease;
+    background: linear-gradient(180deg, rgba(60,35,50,.45), rgba(60,35,50,.12) 45%, rgba(60,35,50,0));
+  }
+
+  /* the envelope's back pocket (covers the card, V-shaped opening at the top) */
+  .env-body { filter: drop-shadow(0 -2px 5px rgba(50,30,45,.4)); transition: transform 1.6s cubic-bezier(.5,0,.3,1), opacity 1.3s ease .15s; }
+  .env-body > div {
+    position: absolute; inset: 0;
+    clip-path: polygon(0 0, 50% 42%, 100% 0, 100% 100%, 0 100%);
+    background: #cdbcc6 url("images/hero.jpg") 50% 70% / cover no-repeat;
+    filter: brightness(.98) saturate(1.1);
+  }
+  .env-body > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(60,35,50,.16), rgba(60,35,50,0) 45%, rgba(60,35,50,.12)); }
+
+  /* top flap: front (photo) + back (lining); the seal rides on its tip */
+  .flap { z-index: 3; transform-origin: 50% 0; transform-style: preserve-3d; transition: transform 1.7s cubic-bezier(.55,0,.25,1); }
+  .flap-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+  .flap-front { filter: drop-shadow(0 3px 3px rgba(50,30,45,.28)) drop-shadow(0 16px 20px rgba(50,30,45,.3)); }
+  .flap-front > div {
+    position: absolute; inset: 0; clip-path: polygon(0 0, 100% 0, 50% 56%);
+    background: #cdbcc6 url("images/hero.jpg") 50% 12% / cover no-repeat;
+    filter: brightness(1.07) saturate(1.1);
+  }
+  .flap-front > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 40%, rgba(60,35,50,.16)); }
+  .flap-back { transform: rotateX(180deg); }
+  .flap-back > div { position: absolute; inset: 0; clip-path: polygon(0 100%, 100% 100%, 50% 44%); background: #c9bac4 url("images/lining.jpg") 30% 50% / cover no-repeat; filter: brightness(.9); }
+
+  .seal {
+    position: absolute; left: 50%; top: 56%; width: 156px; height: 156px;
+    transform: translate(-50%, -50%) translateZ(2px);
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+    cursor: pointer; border: 0; padding: 0; background: none;
+    filter: drop-shadow(0 2px 2px rgba(60, 35, 50, .35)) drop-shadow(0 10px 16px rgba(60, 35, 50, .45));
+    transition: transform .25s cubic-bezier(.3,0,.3,1);
+  }
+  .seal img { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+  /* a glint of light that sweeps across the wax, clipped to the seal's shape */
+  .seal .shine {
+    position: absolute; inset: 0; pointer-events: none; transition: opacity .3s;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 60%);
+    background-size: 260% 100%; animation: sweep 4.5s ease-in-out 1s infinite; mix-blend-mode: soft-light;
+    -webkit-mask: url("images/seal.png") center / contain no-repeat; mask: url("images/seal.png") center / contain no-repeat;
+  }
+  /* light that follows the pointer / phone tilt, plus a soft vignette */
+  .glare {
+    z-index: 5; pointer-events: none;
+    background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.38), rgba(255,255,255,0) 45%);
+    mix-blend-mode: soft-light;
+    box-shadow: inset 0 0 140px rgba(60, 35, 50, .38);
+  }
+
+  /* open sequence: s1 press the seal -> s2 flap folds up (seal goes with it)
+     -> s3 the envelope's bottom slides down while fading out -> s4 fade into the main section */
+  .intro.s3 .env-body { transform: translateY(45%); opacity: 0; }
+  .intro.s1 .seal { animation: none; transform: translate(-50%, -50%) translateZ(2px) scale(.92); }
+  .intro.s1 .seal .shine { opacity: 0; }
+  .intro.s2 .seal { transform: translate(-50%, -50%) translateZ(2px); }
+  .intro.s2 .flap { transform: rotateX(180deg); }
+  .intro.s4 { opacity: 0; pointer-events: none; }
+
+  /* ============ HERO ============ */
+  .hero {
+    min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center;
+    background: #d9ccd8;
+    padding: 60px 24px;
+  }
+  /* hero satin with the embossed frame: drifts very slightly; parallax on scroll */
+  .hero-bg img {
+    transform: scale(1.01);
+    translate: 0 calc(var(--sy, 0) * 90px);
+  }
+  .hero-bg img.drift { animation: drift 28s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: scale(1.04); } }
+  .hero-text { position: relative; z-index: 2; opacity: 0; transform: translateY(16px); transition: opacity 1.4s ease .2s, transform 1.6s cubic-bezier(.2,.7,.2,1) .2s; }
+  body.opened .hero-text { opacity: 1; transform: none; }
+  /* ink printed on the satin: a hairline highlight underneath gives a slight pressed-in feel */
+  .hero-text.printed { color: #43363f; }
+  .hero-text.printed > *:not(.names) { text-shadow: 0 1px 0 rgba(255,255,255,.35); }
+  .hero-text.printed .caps { color: #5a4b55; font-size: 11.5px; }
+  .hero-text.printed .amp { color: #5a4b55; }
+  .hero .names { font-size: 58px; margin: 16px 0 4px; }
+  .hero .amp { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--ink-soft); display: block; margin: 2px 0 6px; }
+  .hero .date { font-family: var(--serif); font-size: 19px; letter-spacing: .12em; margin-top: 22px; }
+  .hero .venue { font-family: var(--serif); font-size: 21px; margin-top: 14px; }
+  .hero-text > *:not(.names) { opacity: 0; transform: translateY(14px); transition: opacity 1.2s ease, transform 1.2s ease; }
+  .hero .names { opacity: 0; filter: blur(6px); transition: opacity 1.6s ease .3s, filter 1.6s ease .3s; }
+  body.opened .hero-text > * { opacity: 1; transform: none; filter: none; }
+  body.opened .hero .t2 { transition-delay: .9s; } body.opened .hero .t3 { transition-delay: 1.2s; }
+  .scroll-cue { position: absolute; bottom: 26px; left: 0; right: 0; opacity: 0; transition: opacity 1s 2s; }
+  body.opened .scroll-cue { opacity: .8; }
+  .scroll-cue span { display: block; width: 1px; height: 34px; margin: 10px auto 0; background: var(--line); animation: drip 2s ease-in-out infinite; transform-origin: top; }
+  @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+  /* ============ COUNTDOWN ============ */
+  .countdown { background: linear-gradient(180deg, var(--band), var(--band-2)); color: #f3eef2; padding: 64px 22px 58px; }
+  .countdown h2 { font-family: var(--serif); font-weight: 400; font-size: 34px; color: #f1ebf0; margin-bottom: 22px; }
+  .ticket {
+    position: relative; display: flex; justify-content: space-around; align-items: center;
+    max-width: 340px; margin: 0 auto; padding: 18px 28px;
+    background: linear-gradient(180deg, #f4eff2, #e2d9df); color: var(--ink);
+    -webkit-mask: radial-gradient(circle 14px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+                  radial-gradient(circle 14px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+            mask: radial-gradient(circle 14px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+                  radial-gradient(circle 14px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  }
+  .ticket::before { content: ""; position: absolute; inset: 6px 20px; border: 1px solid var(--line); pointer-events: none; }
+  .unit { position: relative; min-width: 50px; }
+  .unit b { display: block; font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .unit small { font-size: 8.5px; letter-spacing: .25em; text-transform: uppercase; color: var(--ink-soft); }
+  .see-you { font-family: var(--script); font-size: 40px; color: var(--gold); margin-top: 22px; }
+
+  /* ============ PEARL / PHOTO ============ */
+  /* the pearl frame picture sets the section's shape; the photo sits inside its oval
+     (positions are percentages of images/pearl-frame.jpg, 941 x 1672) */
+  .photo { padding: 0; aspect-ratio: 941 / 1672; background: #e3cfe0; }
+  .photo-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .photo-oval {
+    position: absolute; left: 20.4%; top: 22.37%; width: 58.87%; height: 47.97%;
+    border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  }
+  /* photo sits a little low in the oval and fades into the pearl at the top,
+     because the faces are at the very top edge of the original picture */
+  .photo-oval { align-items: flex-end; }
+  .photo-oval img {
+    width: 100%; height: 89%; object-fit: cover; object-position: 50% 0;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+  }
+  .photo-oval .ph { font-family: var(--script); font-size: clamp(44px, 13vw, 60px); color: #8a6b84; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+  /* set into the frame: soft inner shadow + a slow glint across the glass */
+  .photo-oval::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+    box-shadow: inset 0 0 22px rgba(90,55,85,.35);
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.3) 48%, transparent 62%);
+    background-size: 260% 100%; animation: sweep 8s ease-in-out 2s infinite;
+  }
+  .photo-quote {
+    position: absolute; left: 11%; right: 11%; top: 78.6%;
+    font-family: var(--serif); font-style: italic; font-size: clamp(15px, 4.3vw, 19px); line-height: 1.5;
+    color: #5b4657; text-shadow: 0 1px 0 rgba(255,255,255,.6);
+  }
+
+  /* ============ LOCATION ============ */
+  .location { background: linear-gradient(180deg, #ede6ea, #e6dde2); }
+  .location .script { font-size: 44px; margin: 10px 0 8px; }
+  .location .caps { margin-bottom: 22px; }
+  .villa { width: 100%; max-width: 330px; margin: 28px auto 0; display: block; }
+
+  /* ============ DRESS CODE ============ */
+  .dress { background: var(--paper); padding: 70px 26px; }
+  .arch-card { position: relative; max-width: 360px; margin: 0 auto; padding: 96px 40px 110px; }
+  .arch-card > svg.frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .arch-card > *:not(svg) { position: relative; }
+  .dress .script { font-size: 38px; margin: 6px 0 18px; }
+  .attire { width: 150px; margin: 4px auto 20px; display: block; }
+  .mini-seal { width: 74px; position: absolute !important; left: 50%; bottom: 18px; transform: translateX(-50%); filter: drop-shadow(0 4px 6px rgba(60,35,50,.3)); }
+
+
+
+
+
+  /* music button */
+  .music {
+    position: fixed; z-index: 40; bottom: 18px; left: max(18px, calc(50% - 240px + 18px));
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(120,100,112,.4);
+    background: rgba(240,233,237,.75); backdrop-filter: blur(6px); color: var(--ink);
+    display: none; align-items: center; justify-content: center; cursor: pointer;
+  }
+  body.opened .music.has-audio { display: flex; }
+
+  /* ============ REALISM EFFECTS ============ */
+  /* fine paper grain over the whole invitation and the envelope */
+  .page::after, .intro-inner::after {
+    content: ""; position: absolute; inset: 0; z-index: 30; pointer-events: none; opacity: .32;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .29 0 0 0 .6 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .intro-inner::after { z-index: 6; opacity: .4; }
+
+  /* light shimmer across the names, like pressed foil */
+  .hero .names {
+    background: linear-gradient(100deg, var(--ink) 38%, #c4abbb 47%, #fff6fa 50%, #c4abbb 53%, var(--ink) 62%);
+    background-size: 300% 100%; background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: foil 7s ease-in-out 3s infinite;
+    padding: 0 6px;
+  }
+  @keyframes foil { 0% { background-position: 100% 0; } 45%, 100% { background-position: 0 0; } }
+  .see-you {
+    background: linear-gradient(100deg, #c9b38a 30%, #fff3d6 48%, #e2cfa8 56%, #c9b38a 70%);
+    background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: foil 5s ease-in-out infinite; padding: 0 8px;
+  }
+
+  /* countdown digits flip in when they change */
+  .unit b.flip { animation: flip .55s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes flip { from { transform: perspective(220px) rotateX(-85deg); opacity: .15; } }
+  .ticket::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.7) 50%, transparent 65%);
+    background-size: 250% 100%; animation: sweep 6s ease-in-out 1s infinite;
+  }
+  @keyframes sweep { 0% { background-position: 130% 0; } 35%, 100% { background-position: -30% 0; } }
+
+
+  /* villa drawing draws itself in */
+  .villa g > * { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 3.6s cubic-bezier(.4,0,.2,1) .4s; }
+  .villa.in g > * { stroke-dashoffset: 0; }
+
+  /* light sweep across buttons on hover */
+  .btn { position: relative; overflow: hidden; }
+  .btn::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%);
+    transform: translateX(-120%); transition: transform .8s ease;
+  }
+  .btn:hover::after { transform: translateX(120%); }
+
+  /* falling petals */
+  .petals { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 55; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: .01s !important; transition-delay: 0s !important; }
+  }
+</style>
+</head>
+<body class="locked">
+
+<!-- Shared SVG definitions (filters, gradients, symbols) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Raised "embossed paper" look -->
+    <filter id="emboss" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.6" result="b"/>
+      <feSpecularLighting in="b" surfaceScale="3.2" specularConstant=".9" specularExponent="16" lighting-color="#ffffff" result="s">
+        <feDistantLight azimuth="235" elevation="38"/>
+      </feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+      <feOffset in="SourceAlpha" dx="1.2" dy="1.8" result="o"/>
+      <feGaussianBlur in="o" stdDeviation="1.4" result="ob"/>
+      <feColorMatrix in="ob" type="matrix" values="0 0 0 0 .3  0 0 0 0 .2  0 0 0 0 .27  0 0 0 .45 0" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+    <!-- Mother-of-pearl marbling -->
+    <filter id="pearl" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".006 .018" numOctaves="4" seed="7"/>
+      <feColorMatrix type="matrix" values=".34 .1 0 0 .58   .22 .16 0 0 .55   .2 .26 0 0 .6   0 0 0 0 1"/>
+    </filter>
+
+    <!-- Embossed rose -->
+    <symbol id="rose" viewBox="-34 -34 68 68" overflow="visible">
+      <g fill="#e6dbe1" stroke="#b9a7b2" stroke-width=".6">
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(45)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(90)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(135)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(180)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(225)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(270)"/>
+        <ellipse cx="0" cy="-17" rx="13" ry="16" transform="rotate(315)"/>
+        <ellipse cx="0" cy="-10" rx="10" ry="11" transform="rotate(30)"/>
+        <ellipse cx="0" cy="-10" rx="10" ry="11" transform="rotate(90)"/>
+        <ellipse cx="0" cy="-10" rx="10" ry="11" transform="rotate(150)"/>
+        <ellipse cx="0" cy="-10" rx="10" ry="11" transform="rotate(210)"/>
+        <ellipse cx="0" cy="-10" rx="10" ry="11" transform="rotate(270)"/>
+        <ellipse cx="0" cy="-10" rx="10" ry="11" transform="rotate(330)"/>
+        <circle r="9"/>
+        <path d="M-3,0 a3,3 0 1,1 6,0 a5,5 0 1,1 -10,0 a7,7 0 1,1 14,0" fill="none"/>
+      </g>
+    </symbol>
+    <symbol id="sprig" viewBox="0 -8 34 16" overflow="visible">
+      <path d="M0,0 C9,-8 22,-8 32,0 C22,8 9,8 0,0 Z" fill="#e6dbe1" stroke="#b9a7b2" stroke-width=".6"/>
+      <path d="M2,0 L28,0" stroke="#b9a7b2" stroke-width=".5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="backdrop" aria-hidden="true"><svg preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#pearl)"/></svg></div>
+
+<!-- ================= ENVELOPE INTRO ================= -->
+<div class="intro" id="intro">
+  <div class="intro-inner">
+    <div class="env">
+      <div class="layer env-lining"></div>
+      <div class="layer env-body"><div></div></div>
+      <div class="layer flap">
+        <div class="flap-face flap-back"><div></div></div>
+        <div class="flap-face flap-front"><div></div></div>
+        <button class="seal" id="seal" aria-label="Open the invitation">
+          <img src="images/seal.png" alt="" draggable="false">
+          <span class="shine" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+    <div class="layer glare" aria-hidden="true"></div>
+  </div>
+</div>
+
+<main class="page">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <!-- Background: satin with the embossed frame (replace images/satin-frame.jpg to change it) -->
+    <div class="hero-bg absolute inset-0 overflow-hidden" aria-hidden="true">
+      <img src="images/satin-frame.jpg" alt="" class="absolute inset-0 h-full w-full object-cover object-center will-change-transform" fetchpriority="high">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,rgba(50,30,45,.16))]"></div>
+    </div>
+
+    <!-- Text printed straight onto the satin, inside the frame -->
+    <div class="relative z-[2] w-full max-w-[290px]">
+      <div class="hero-text printed">
+        <p class="serif" style="font-size:16px;line-height:1.3">Dating<br>Together</p>
+        <h1 class="script names">Narangerel<span class="amp">&amp;</span>Batorshikh</h1>
+        <p class="date t2">12 · 06 · 2027</p>
+        <p class="venue t3">Villa Serena</p>
+        <p class="caps t3" style="margin-top:4px">Lake Como · Italy</p>
+      </div>
+    </div>
+    <div class="scroll-cue caps z-[2] !text-white [text-shadow:0_1px_6px_rgba(50,30,45,.6)]">Scroll<span class="!bg-white/80"></span></div>
+  </section>
+
+  <!-- ================= COUNTDOWN ================= -->
+  <section class="countdown">
+    <h2 class="reveal">Countdown</h2>
+    <div class="ticket reveal d1" role="timer" aria-live="off">
+      <div class="unit"><b id="cd-d">0</b><small>Days</small></div>
+      <div class="unit"><b id="cd-h">0</b><small>Hours</small></div>
+      <div class="unit"><b id="cd-m">0</b><small>Minutes</small></div>
+      <div class="unit"><b id="cd-s">0</b><small>Seconds</small></div>
+    </div>
+    <p class="see-you reveal d2" id="see-you">See you soon!</p>
+  </section>
+
+  <!-- ================= PHOTO ================= -->
+  <section class="photo">
+    <img class="photo-bg" src="images/pearl-frame.jpg" alt="" aria-hidden="true" loading="lazy">
+    <div class="photo-oval reveal">
+      <img src="images/photo.jpg" alt="The couple" loading="lazy">
+    </div>
+    <p class="photo-quote reveal d1">“Whatever our souls are made of,<br>his and mine are the same.”</p>
+  </section>
+
+  <!-- ================= LOCATION ================= -->
+  <section class="location">
+    <h2 class="title reveal">Location</h2>
+    <p class="script reveal d1">Villa Serena</p>
+    <p class="caps reveal d1">Lake Como · Italy</p>
+    <p class="body reveal d2">Set on the quiet western shore of Lake Como, Villa Serena will host our celebration among terraced gardens and old cypress trees overlooking the water.</p>
+    <p class="body reveal d2" style="margin-top:12px">We recommend arriving a little early to settle in and enjoy the views before the ceremony begins.</p>
+    <svg class="villa reveal d3" id="villa" viewBox="0 0 260 150" aria-label="Drawing of Villa Serena"></svg>
+    <a class="btn reveal d3" id="directions" target="_blank" rel="noopener">Get directions</a>
+  </section>
+
+  <!-- ================= DRESS CODE ================= -->
+  <section class="dress">
+    <div class="arch-card reveal">
+      <svg class="frame" viewBox="0 0 300 560" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="none" stroke="#9d8c96" stroke-width="1">
+          <path d="M14,546 L14,96 Q14,70 40,66 L96,60 Q120,58 128,34 Q136,14 150,12 Q164,14 172,34 Q180,58 204,60 L260,66 Q286,70 286,96 L286,546 Z"/>
+          <path d="M24,536 L24,100 Q24,80 46,77 L100,71 Q128,68 138,42 Q144,26 150,24 Q156,26 162,42 Q172,68 200,71 L254,77 Q276,80 276,100 L276,536 Z"/>
+        </g>
+      </svg>
+      <h2 class="title">Dress<br>Code</h2>
+      <p class="script">Formal Elegant</p>
+      <svg class="attire" viewBox="0 0 150 130" aria-hidden="true">
+        <g fill="none" stroke="#6f6068" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <!-- hanger + suit -->
+          <path d="M50,10 q0,-6 5,-6 q5,0 5,5 q0,4 -5,6 v4 M30,28 L55,19 L80,28"/>
+          <path d="M32,30 Q28,60 30,96 L50,98 L55,52 L60,98 L80,96 Q82,60 78,30 L66,26 L55,52 L44,26 Z" fill="#c9c4d6"/>
+          <path d="M44,26 L50,46 L46,52 L55,70 M66,26 L60,46 L64,52 L55,70"/>
+          <circle cx="55" cy="78" r="1.2" fill="#6f6068"/><circle cx="55" cy="86" r="1.2" fill="#6f6068"/>
+          <!-- gown -->
+          <path d="M98,22 q0,-6 5,-6 q5,0 5,5 q0,4 -5,6 v3"/>
+          <path d="M94,32 Q103,38 112,32 L110,58 Q124,96 132,124 Q103,130 76,124 Q84,96 96,58 Z" fill="#e7dde3"/>
+          <path d="M96,58 Q103,62 110,58 M100,62 Q96,92 88,122 M106,62 Q110,92 118,124 M103,62 L103,126"/>
+        </g>
+      </svg>
+      <p class="body">Huurhun bolood ireerei hairaa.</p>
+      <img class="mini-seal" src="images/seal.png" alt="" aria-hidden="true">
+    </div>
+  </section>
+</main>
+
+<button class="music" id="music" aria-label="Play music" aria-pressed="false">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>
+</button>
+
+<script>
+/* ============ EDIT YOUR DETAILS HERE ============ */
+const CONFIG = {
+  date: "2027-06-12T17:00:00+02:00",               // ceremony start, used by the countdown
+  directions: "https://maps.google.com/?q=Lake+Como+Italy",
+  music: ""                                        // e.g. "music.mp3" (file next to index.html) — shows the sound button
+};
+
+/* small seeded random so the artwork is the same on every load */
+let seed = 11;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+
+/* Villa line drawing */
+(function () {
+  const s = document.getElementById("villa");
+  const g = el("g", { fill: "none", stroke: "#6f6068", "stroke-width": .7, "stroke-linecap": "round" }, s);
+  el("path", { d: "M2,136 H258" }, g);
+  el("rect", { x: 50, y: 52, width: 160, height: 78 }, g);
+  el("rect", { x: 46, y: 46, width: 168, height: 6 }, g);
+  el("path", { d: "M106,46 L130,30 L154,46" }, g);
+  for (let x = 48; x <= 212; x += 6) el("path", { d: `M${x},46 v-5` }, g);
+  el("path", { d: "M46,41 H214" }, g);
+  for (let row = 0; row < 3; row++)
+    for (let c = 0; c < 9; c++) {
+      const x = 58 + c * 17.5, y = 60 + row * 22;
+      if (row === 2 && c === 4) continue;
+      el("path", { d: `M${x},${y + 13} V${y + 3} Q${x + 4},${y - 1} ${x + 8},${y + 3} V${y + 13} Z M${x + 4},${y + 1} V${y + 13}` }, g);
+    }
+  el("path", { d: "M122,130 V112 Q130,102 138,112 V130" }, g);
+  el("path", { d: "M112,130 H148 M108,133 H152 M104,136 H156" }, g);
+  el("rect", { x: 14, y: 84, width: 36, height: 46 }, g);
+  el("rect", { x: 210, y: 84, width: 36, height: 46 }, g);
+  for (const x of [20, 34, 216, 230]) el("rect", { x, y: 94, width: 8, height: 12 }, g);
+  const tree = (cx, base, h, w) => el("path", { d: `M${cx},${base} C${cx - w},${base - h * .3} ${cx - w * .6},${base - h * .8} ${cx},${base - h} C${cx + w * .6},${base - h * .8} ${cx + w},${base - h * .3} ${cx},${base}` }, g);
+  tree(6, 136, 70, 8); tree(248, 136, 76, 8); tree(256, 136, 54, 6);
+  for (let i = 0; i < 14; i++) el("circle", { cx: 2 + rnd() * 40, cy: 112 + rnd() * 22, r: 3 + rnd() * 4 }, g);
+  for (let i = 0; i < 14; i++) el("circle", { cx: 218 + rnd() * 40, cy: 112 + rnd() * 22, r: 3 + rnd() * 4 }, g);
+  /* normalise every stroke so the "draw in" animation works on all shapes */
+  g.querySelectorAll("*").forEach(n => n.setAttribute("pathLength", 1));
+})();
+
+/* Links */
+document.getElementById("directions").href = CONFIG.directions;
+
+/* Envelope opening */
+const intro = document.getElementById("intro");
+const audio = CONFIG.music ? new Audio(CONFIG.music) : null;
+const musicBtn = document.getElementById("music");
+if (audio) { audio.loop = true; musicBtn.classList.add("has-audio"); }
+const setMusic = on => {
+  if (!audio) return;
+  on ? audio.play().catch(() => {}) : audio.pause();
+  musicBtn.setAttribute("aria-pressed", on);
+  document.getElementById("waves").style.opacity = on ? 1 : .15;
+};
+musicBtn.addEventListener("click", () => setMusic(audio && audio.paused));
+
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+document.getElementById("seal").addEventListener("click", e => {
+  if (intro.classList.contains("s1")) return;
+  setMusic(true);
+  if (navigator.vibrate) navigator.vibrate(22);
+  // s1 press seal · s2 flap opens (seal goes with it) · s4 fade into the main section
+  const steps = [["s1", 0], ["s2", 260], ["s3", 1500], ["s4", 2900]];
+  steps.forEach(([c, t]) => setTimeout(() => intro.classList.add(c), t));
+  const b = e.currentTarget.getBoundingClientRect();
+  setTimeout(() => Petals.burst(b.left + b.width / 2, b.top - b.height * .6, 34), 1100);
+  setTimeout(() => { document.body.classList.add("opened"); Petals.ambient(true); }, 3000);
+  setTimeout(() => document.querySelector(".hero-bg img").classList.add("drift"), 4400);
+  setTimeout(() => { intro.remove(); document.body.classList.remove("locked"); }, 4100);
+});
+
+/* Gentle parallax on the hero photo while scrolling */
+(function () {
+  if (reduceMotion) return;
+  const root = document.documentElement.style;
+  addEventListener("scroll", () => {
+    root.setProperty("--sy", Math.min(1, scrollY / innerHeight).toFixed(3));
+  }, { passive: true });
+})();
+
+/* Falling petals (canvas) */
+const Petals = (function () {
+  const api = { burst() {}, ambient() {} };
+  if (reduceMotion) return api;
+  const cv = document.createElement("canvas");
+  cv.className = "petals"; cv.setAttribute("aria-hidden", "true");
+  document.body.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  const COLORS = ["#f6ecf0", "#efdde5", "#e3cbd6", "#f9f2f5", "#ead9cb", "#dcc6d2"];
+  let W = 0, H = 0, dpr = 1, list = [], ambientOn = false, running = false, last = 0;
+  const resize = () => {
+    dpr = Math.min(2, devicePixelRatio || 1);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+  };
+  resize(); addEventListener("resize", resize);
+
+  const make = (x, y, vx, vy, burst) => ({
+    x, y, vx, vy, burst,
+    s: 5 + Math.random() * 6,
+    rot: Math.random() * Math.PI * 2, vr: (Math.random() - .5) * .06,
+    flip: Math.random() * Math.PI * 2, vf: .03 + Math.random() * .05,
+    sway: Math.random() * Math.PI * 2,
+    c: COLORS[(Math.random() * COLORS.length) | 0],
+    a: .75 + Math.random() * .25
+  });
+  const spawnAmbient = (top) => list.push(make(Math.random() * W, top ? -20 : Math.random() * H, (Math.random() - .3) * .4, .35 + Math.random() * .5, false));
+
+  const drawPetal = p => {
+    ctx.save();
+    ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.scale(Math.cos(p.flip) * .8 + .2 * Math.sign(Math.cos(p.flip) || 1), 1);   // 3D tumble
+    const s = p.s;
+    ctx.globalAlpha = p.a;
+    const g = ctx.createLinearGradient(0, -s, 0, s);
+    g.addColorStop(0, "#ffffff"); g.addColorStop(.35, p.c); g.addColorStop(1, p.c);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(0, s);
+    ctx.bezierCurveTo(s * 1.1, s * .3, s * .8, -s * .9, s * .15, -s);
+    ctx.quadraticCurveTo(0, -s * .75, -s * .15, -s);
+    ctx.bezierCurveTo(-s * .8, -s * .9, -s * 1.1, s * .3, 0, s);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(160,130,148,.35)"; ctx.lineWidth = .6; ctx.stroke();
+    ctx.restore();
+  };
+
+  const loop = t => {
+    const dt = Math.min(3, (t - last) / 16.7 || 1); last = t;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    for (let i = list.length - 1; i >= 0; i--) {
+      const p = list[i];
+      if (p.burst) { p.vx *= .985; p.vy = p.vy * .985 + .06 * dt; }
+      p.sway += .02 * dt;
+      p.x += (p.vx + Math.sin(p.sway) * .6) * dt;
+      p.y += Math.min(p.vy, 2.4) * dt + (p.burst ? 0 : 0);
+      if (p.burst && p.vy > 2.4) p.vy = 2.4;
+      p.rot += p.vr * dt; p.flip += p.vf * dt;
+      if (p.y > H + 30 || p.x < -60 || p.x > W + 60) {
+        list.splice(i, 1);
+        if (!p.burst && ambientOn) spawnAmbient(true);
+        continue;
+      }
+      drawPetal(p);
+    }
+    if (list.length) requestAnimationFrame(loop);
+    else { running = false; ctx.clearRect(0, 0, W, H); }
+  };
+  const start = () => { if (!running) { running = true; last = performance.now(); requestAnimationFrame(loop); } };
+
+  api.burst = (x, y, n = 30) => {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 2 + Math.random() * 5;
+      list.push(make(x, y, Math.cos(a) * v, Math.sin(a) * v - 3, true));
+    }
+    start();
+  };
+  api.ambient = on => {
+    ambientOn = on;
+    if (on) { const n = W < 600 ? 12 : 18; for (let i = 0; i < n; i++) spawnAmbient(false); start(); }
+  };
+  return api;
+})();
+
+/* Countdown */
+(function () {
+  const target = new Date(CONFIG.date).getTime();
+  const pad = n => String(n).padStart(2, "0");
+  const set = (id, v) => {
+    const n = document.getElementById(id);
+    if (n.textContent === v) return;
+    n.textContent = v;
+    n.classList.remove("flip"); void n.offsetWidth; n.classList.add("flip");
+  };
+  const tick = () => {
+    let diff = Math.max(0, target - Date.now()) / 1000;
+    const d = Math.floor(diff / 86400); diff -= d * 86400;
+    const h = Math.floor(diff / 3600); diff -= h * 3600;
+    const m = Math.floor(diff / 60); const s = Math.floor(diff - m * 60);
+    set("cd-d", String(d)); set("cd-h", pad(h)); set("cd-m", pad(m)); set("cd-s", pad(s));
+    if (target <= Date.now()) document.getElementById("see-you").textContent = "Just married!";
+  };
+  tick(); setInterval(tick, 1000);
+})();
+
+/* Scroll reveal */
+const io = new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { threshold: .15 });
+document.querySelectorAll(".reveal").forEach(n => io.observe(n));
+</script>
+</body>
+</html>
