@@ -3,24 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Elena &amp; Marco</title>
+<title>orshih &amp; narry</title>
 <meta name="description" content="You are invited to the wedding of Elena & Marco">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="hero.jpg">
 <link rel="preload" as="image" href="satin-frame.jpg">
-<!-- Tailwind (utility classes). Preflight is off so it doesn't reset the hand-written styles below. -->
-<script src="https://cdn.tailwindcss.com/3.4.16"></script>
-<script>
-  tailwind.config = {
-    corePlugins: { preflight: false },
-    theme: { extend: {
-      colors: { ink: "#4f434a", "ink-soft": "#7b6c75", paper: "#ece3e7", band: "#6f6c88" },
-      fontFamily: { script: ['"Pinyon Script"', "cursive"], serif: ['"Cormorant Garamond"', "Georgia", "serif"], sans: ["Jost", "system-ui", "sans-serif"] }
-    } }
-  };
-</script>
 <style>
   /* ============ EDIT COLORS HERE ============ */
   :root {
@@ -36,6 +25,13 @@
     --script: "Pinyon Script", cursive;
     --serif: "Cormorant Garamond", Georgia, serif;
     --sans: "Jost", system-ui, sans-serif;
+    /* motion tokens: one place to tune the feel of every animation */
+    --ease-out: cubic-bezier(.2, .7, .2, 1);        /* settles gently */
+    --ease-in-out: cubic-bezier(.55, 0, .25, 1);    /* paper/flap moves */
+    --ease-press: cubic-bezier(.3, 0, .3, 1);       /* quick tactile press */
+    --dur-fast: .25s;
+    --dur-med: 1.1s;
+    --dur-slow: 1.7s;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -91,7 +87,9 @@
   .intro { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: center; transition: opacity 1.1s ease; }
   .intro-inner { position: relative; width: 100%; max-width: 480px; height: 100%; overflow: hidden; background: #8f7b8b; }
   .layer { position: absolute; inset: 0; }
-  .env { position: absolute; inset: 0; perspective: 1700px; perspective-origin: 50% 35%; transition: transform 1.3s cubic-bezier(.5,0,.2,1); }
+  .env { position: absolute; inset: 0; perspective: 1700px; perspective-origin: 50% 35%; transition: opacity .8s ease; }
+  /* until the images and fonts are decoded, show only the plain envelope colour (no half-loaded flash) */
+  .intro:not(.ready) .env { opacity: 0; }
 
   /* inside of the envelope */
   /* the framed satin from the main section, so opening the envelope fades straight into it */
@@ -104,7 +102,7 @@
   }
 
   /* the envelope's back pocket (covers the card, V-shaped opening at the top) */
-  .env-body { filter: drop-shadow(0 -2px 5px rgba(50,30,45,.4)); transition: transform 1.6s cubic-bezier(.5,0,.3,1), opacity 1.3s ease .15s; }
+  .env-body { filter: drop-shadow(0 -2px 5px rgba(50,30,45,.4)); transition: transform 1.6s var(--ease-in-out), opacity 1.3s ease .15s; }
   .env-body > div {
     position: absolute; inset: 0;
     clip-path: polygon(0 0, 50% 42%, 100% 0, 100% 100%, 0 100%);
@@ -114,7 +112,7 @@
   .env-body > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(60,35,50,.16), rgba(60,35,50,0) 45%, rgba(60,35,50,.12)); }
 
   /* top flap: front (photo) + back (lining); the seal rides on its tip */
-  .flap { z-index: 3; transform-origin: 50% 0; transform-style: preserve-3d; transition: transform 1.7s cubic-bezier(.55,0,.25,1); }
+  .flap { z-index: 3; transform-origin: 50% 0; transform-style: preserve-3d; transition: transform var(--dur-slow) var(--ease-in-out); }
   .flap-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
   .flap-front { filter: drop-shadow(0 3px 3px rgba(50,30,45,.28)) drop-shadow(0 16px 20px rgba(50,30,45,.3)); }
   .flap-front > div {
@@ -123,6 +121,9 @@
     filter: brightness(1.07) saturate(1.1);
   }
   .flap-front > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 40%, rgba(60,35,50,.16)); }
+  /* as the flap tilts away from the light it darkens a little (it's hidden once past 90deg anyway) */
+  .flap-front > div::before { content: ""; position: absolute; inset: 0; z-index: 1; background: #2e1f29; opacity: 0; transition: opacity .85s var(--ease-in-out); }
+  .intro.s2 .flap-front > div::before { opacity: .38; }
   .flap-back { transform: rotateX(180deg); }
   .flap-back > div { position: absolute; inset: 0; clip-path: polygon(0 100%, 100% 100%, 50% 44%); background: #c9bac4 url("lining.jpg") 30% 50% / cover no-repeat; filter: brightness(.9); }
 
@@ -132,17 +133,22 @@
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
     cursor: pointer; border: 0; padding: 0; background: none;
     filter: drop-shadow(0 2px 2px rgba(60, 35, 50, .35)) drop-shadow(0 10px 16px rgba(60, 35, 50, .45));
-    transition: transform .25s cubic-bezier(.3,0,.3,1);
+    transition: transform var(--dur-fast) var(--ease-press);
   }
-  .seal img { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+  .seal:focus-visible { outline: 2px solid rgba(255,255,255,.9); outline-offset: 6px; border-radius: 50%; }
+  .seal img { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; transition: filter .85s var(--ease-in-out); }
+  .intro.s2 .seal img { filter: brightness(.72); }
   /* a glint of light that sweeps across the wax, clipped to the seal's shape */
   .seal .shine {
-    position: absolute; inset: 0; pointer-events: none; transition: opacity .3s;
-    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 60%);
-    background-size: 260% 100%; animation: sweep 4.5s ease-in-out 1s infinite; mix-blend-mode: soft-light;
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none; transition: opacity .3s; mix-blend-mode: soft-light;
     -webkit-mask: url("seal.png") center / contain no-repeat; mask: url("seal.png") center / contain no-repeat;
   }
-  /* light that follows the pointer / phone tilt, plus a soft vignette */
+  .seal .shine::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 60%);
+    animation: glint 4.5s ease-in-out 1s infinite;
+  }
+  /* fixed soft light plus a vignette */
   .glare {
     z-index: 5; pointer-events: none;
     background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.38), rgba(255,255,255,0) 45%);
@@ -158,6 +164,8 @@
   .intro.s2 .seal { transform: translate(-50%, -50%) translateZ(2px); }
   .intro.s2 .flap { transform: rotateX(180deg); }
   .intro.s4 { opacity: 0; pointer-events: none; }
+  /* second tap / Esc: everything still runs, just quickly */
+  .intro.skip, .intro.skip * { transition-duration: .45s !important; transition-delay: 0s !important; }
 
   /* ============ HERO ============ */
   .hero {
@@ -166,12 +174,17 @@
     padding: 60px 24px;
   }
   /* hero satin with the embossed frame: drifts very slightly; parallax on scroll */
+  .hero-bg { position: absolute; inset: 0; overflow: hidden; }
   .hero-bg img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;
     transform: scale(1.01);
   }
+  .hero-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 60%, rgba(50,30,45,.16)); }
+  .hero-inner { position: relative; z-index: 2; width: 100%; max-width: 290px; }
   .hero-bg img.drift { animation: drift 28s ease-in-out infinite alternate; }
   @keyframes drift { to { transform: scale(1.04); } }
-  .hero-text { position: relative; z-index: 2; opacity: 0; transform: translateY(16px); transition: opacity 1.4s ease .2s, transform 1.6s cubic-bezier(.2,.7,.2,1) .2s; }
+  .hero-text { position: relative; z-index: 2; opacity: 0; transform: translateY(16px); transition: opacity 1.4s ease .2s, transform 1.6s var(--ease-out) .2s; }
+  .hero .names:focus { outline: none; }
   body.opened .hero-text { opacity: 1; transform: none; }
   /* ink printed on the satin: a hairline highlight underneath gives a slight pressed-in feel */
   .hero-text.printed { color: #43363f; }
@@ -186,9 +199,9 @@
   .hero .names { opacity: 0; filter: blur(6px); transition: opacity 1.6s ease .3s, filter 1.6s ease .3s; }
   body.opened .hero-text > * { opacity: 1; transform: none; filter: none; }
   body.opened .hero .t2 { transition-delay: .9s; } body.opened .hero .t3 { transition-delay: 1.2s; }
-  .scroll-cue { position: absolute; bottom: 26px; left: 0; right: 0; opacity: 0; transition: opacity 1s 2s; }
+  .scroll-cue { position: absolute; bottom: 26px; left: 0; right: 0; z-index: 2; opacity: 0; transition: opacity 1s 2s; color: #fff; text-shadow: 0 1px 6px rgba(50,30,45,.6); }
   body.opened .scroll-cue { opacity: .8; }
-  .scroll-cue span { display: block; width: 1px; height: 34px; margin: 10px auto 0; background: var(--line); animation: drip 2s ease-in-out infinite; transform-origin: top; }
+  .scroll-cue span { display: block; width: 1px; height: 34px; margin: 10px auto 0; background: rgba(255,255,255,.8); animation: drip 2s ease-in-out infinite; transform-origin: top; }
   @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
 
   /* ============ COUNTDOWN ============ */
@@ -206,7 +219,27 @@
   }
   .ticket::before { content: ""; position: absolute; inset: 6px 20px; border: 1px solid var(--line); pointer-events: none; }
   .unit { position: relative; min-width: 50px; }
-  .unit b { display: block; font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+  /* split-flap tile: static top/bottom halves + a top leaf that falls and a bottom leaf that lands */
+  .fd {
+    position: relative; display: block; width: max-content; min-width: 1.45em; margin: 0 auto 6px; padding: 0 .14em;
+    height: 1.3em; line-height: 1.3em; font-family: var(--serif); font-weight: 400; font-size: 30px;
+    font-variant-numeric: tabular-nums; color: var(--ink); perspective: 140px;
+    border-radius: 4px; box-shadow: 0 2px 5px rgba(60,35,50,.16), 0 0 0 1px rgba(120,95,110,.12);
+  }
+  .fd i { display: block; height: 1.3em; font-style: normal; text-align: center; }
+  .fd .sz { visibility: hidden; }
+  .fd > span { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+  .fd .t, .fd .ft { top: 0; border-radius: 4px 4px 0 0; background: linear-gradient(#fcf9fb, #f2ecef); }
+  .fd .b, .fd .fb { bottom: 0; border-radius: 0 0 4px 4px; background: linear-gradient(#ebe4e8, #f6f1f4); }
+  .fd .b i, .fd .fb i { margin-top: -.65em; }
+  .fd::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; z-index: 3; background: rgba(80,60,72,.2); }
+  .fd .ft { z-index: 2; transform-origin: 50% 100%; }
+  .fd .fb { z-index: 2; transform-origin: 50% 0; transform: rotateX(90deg); }
+  .fd.go .ft { animation: fd-top .26s ease-in forwards; }
+  .fd.go .fb { animation: fd-bottom .3s cubic-bezier(.2,.9,.3,1.25) .26s forwards; }
+  @keyframes fd-top { to { transform: rotateX(-90deg); } }
+  @keyframes fd-bottom { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .unit small { font-size: 8.5px; letter-spacing: .25em; text-transform: uppercase; color: var(--ink-soft); }
   .see-you { font-family: var(--script); font-size: 40px; color: var(--gold); margin-top: 22px; }
 
@@ -229,11 +262,14 @@
   }
   .photo-oval .ph { font-family: var(--script); font-size: clamp(44px, 13vw, 60px); color: #8a6b84; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
   /* set into the frame: soft inner shadow + a slow glint across the glass */
-  .photo-oval::after {
-    content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-    box-shadow: inset 0 0 22px rgba(90,55,85,.35);
+  .photo-oval::before {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
     background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.3) 48%, transparent 62%);
-    background-size: 260% 100%; animation: sweep 8s ease-in-out 2s infinite;
+    animation: glint 8s ease-in-out 2s infinite;
+  }
+  .photo-oval::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+    box-shadow: inset 0 0 22px rgba(90,55,85,.35);
   }
   .photo-quote {
     position: absolute; left: 11%; right: 11%; top: 78.6%;
@@ -294,15 +330,13 @@
     animation: foil 5s ease-in-out infinite; padding: 0 8px;
   }
 
-  /* countdown digits flip in when they change */
-  .unit b.flip { animation: flip .55s cubic-bezier(.3,1.5,.5,1); }
-  @keyframes flip { from { transform: perspective(220px) rotateX(-85deg); opacity: .15; } }
   .ticket::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.7) 50%, transparent 65%);
-    background-size: 250% 100%; animation: sweep 6s ease-in-out 1s infinite;
+    animation: glint 6s ease-in-out 1s infinite;
   }
-  @keyframes sweep { 0% { background-position: 130% 0; } 35%, 100% { background-position: -30% 0; } }
+  /* a band of light crossing a surface; moved with transform so the GPU does the work (no repaint per frame) */
+  @keyframes glint { 0% { transform: translateX(-100%); } 35%, 100% { transform: translateX(100%); } }
 
 
   /* villa drawing draws itself in */
@@ -318,11 +352,15 @@
   }
   .btn:hover::after { transform: translateX(120%); }
 
+  /* sections scrolled out of view pause their looping animations (saves battery) */
+  .offscreen *, .offscreen *::before, .offscreen *::after { animation-play-state: paused !important; }
+
   /* falling petals */
   .petals { position: fixed; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 55; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition-duration: .01s !important; transition-delay: 0s !important; }
+    .intro { transition-duration: .6s !important; }   /* the envelope simply crossfades away */
   }
 </style>
 </head>
@@ -403,32 +441,32 @@
   <!-- ================= HERO ================= -->
   <section class="hero" id="top">
     <!-- Background: satin with the embossed frame (replace satin-frame.jpg to change it) -->
-    <div class="hero-bg absolute inset-0 overflow-hidden" aria-hidden="true">
-      <img src="satin-frame.jpg" alt="" class="absolute inset-0 h-full w-full object-cover object-center will-change-transform" fetchpriority="high">
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,rgba(50,30,45,.16))]"></div>
+    <div class="hero-bg" aria-hidden="true">
+      <img src="satin-frame.jpg" alt="" fetchpriority="high">
+      <div class="hero-vignette"></div>
     </div>
 
     <!-- Text printed straight onto the satin, inside the frame -->
-    <div class="relative z-[2] w-full max-w-[290px]">
+    <div class="hero-inner">
       <div class="hero-text printed">
         <p class="serif" style="font-size:16px;line-height:1.3">Dating<br>Together</p>
-        <h1 class="script names">Narangerel<span class="amp">&amp;</span>Batorshikh</h1>
+        <h1 class="script names" tabindex="-1">Narangerel<span class="amp">&amp;</span>Batorshikh</h1>
         <p class="date t2">12 · 06 · 2027</p>
         <p class="venue t3">Villa Serena</p>
         <p class="caps t3" style="margin-top:4px">Lake Como · Italy</p>
       </div>
     </div>
-    <div class="scroll-cue caps z-[2] !text-white [text-shadow:0_1px_6px_rgba(50,30,45,.6)]">Scroll<span class="!bg-white/80"></span></div>
+    <div class="scroll-cue caps">Scroll<span></span></div>
   </section>
 
   <!-- ================= COUNTDOWN ================= -->
   <section class="countdown">
     <h2 class="reveal">Countdown</h2>
     <div class="ticket reveal d1" role="timer" aria-live="off">
-      <div class="unit"><b id="cd-d">0</b><small>Days</small></div>
-      <div class="unit"><b id="cd-h">0</b><small>Hours</small></div>
-      <div class="unit"><b id="cd-m">0</b><small>Minutes</small></div>
-      <div class="unit"><b id="cd-s">0</b><small>Seconds</small></div>
+      <div class="unit"><span class="fd" id="cd-d"></span><small>Days</small></div>
+      <div class="unit"><span class="fd" id="cd-h"></span><small>Hours</small></div>
+      <div class="unit"><span class="fd" id="cd-m"></span><small>Minutes</small></div>
+      <div class="unit"><span class="fd" id="cd-s"></span><small>Seconds</small></div>
     </div>
     <p class="see-you reveal d2" id="see-you">See you soon!</p>
   </section>
@@ -553,19 +591,80 @@ musicBtn.addEventListener("click", () => setMusic(audio && audio.paused));
 
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-document.getElementById("seal").addEventListener("click", e => {
-  if (intro.classList.contains("s1")) return;
+const seal = document.getElementById("seal");
+const main = document.querySelector("main");
+const heroImg = document.querySelector(".hero-bg img");
+main.inert = true;                      // keyboard/screen readers stay on the envelope until it opens
+
+/* resolves when every running animation/transition on `el` has finished (or after `max` ms as a safety net) */
+const finished = (el, max) => new Promise(done => {
+  const anims = el.getAnimations ? el.getAnimations() : [];
+  const t = setTimeout(done, max);
+  if (!anims.length) return;
+  Promise.all(anims.map(a => a.finished)).then(() => { clearTimeout(t); done(); }, () => {});
+});
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+/* 1. don't show the envelope until its images + fonts are decoded (max 5s) */
+(function () {
+  const decode = src => { const i = new Image(); i.src = src; return i.decode ? i.decode().catch(() => {}) : Promise.resolve(); };
+  const assets = Promise.all([
+    decode("seal.png"), decode("hero.jpg"), decode("lining.jpg"), decode("satin-frame.jpg"),
+    document.fonts ? document.fonts.ready : Promise.resolve()
+  ]);
+  Promise.race([assets, wait(5000)]).then(() => intro.classList.add("ready"));
+})();
+
+/* 2. the opening, driven by the animations actually finishing (not by fixed timers) */
+let state = "closed";                   // closed -> opening -> done
+const finish = () => {
+  if (state === "done") return;
+  state = "done";
+  intro.remove();
+  document.body.classList.remove("locked");
+  main.inert = false;
+  document.querySelector(".hero .names").focus({ preventScroll: true });
+  heroImg.classList.add("drift");
+};
+const reveal = () => {
+  if (document.body.classList.contains("opened")) return;
+  document.body.classList.add("opened");
+  Petals.ambient(true);
+};
+const skip = async () => {
+  if (state !== "opening") return;
+  intro.classList.add("skip", "s1", "s2", "s3", "s4");
+  reveal();
+  await finished(intro, 700);
+  finish();
+};
+const open = async () => {
+  if (state !== "closed" || !intro.classList.contains("ready")) return;
+  state = "opening";
   setMusic(true);
   if (navigator.vibrate) navigator.vibrate(22);
-  // s1 press seal · s2 flap opens (seal goes with it) · s4 fade into the main section
-  const steps = [["s1", 0], ["s2", 260], ["s3", 1500], ["s4", 2900]];
-  steps.forEach(([c, t]) => setTimeout(() => intro.classList.add(c), t));
-  const b = e.currentTarget.getBoundingClientRect();
-  setTimeout(() => Petals.burst(b.left + b.width / 2, b.top - b.height * .6, 34), 1100);
-  setTimeout(() => { document.body.classList.add("opened"); Petals.ambient(true); }, 3000);
-  setTimeout(() => document.querySelector(".hero-bg img").classList.add("drift"), 4400);
-  setTimeout(() => { intro.remove(); document.body.classList.remove("locked"); }, 4100);
+
+  if (reduceMotion) {                   // no envelope choreography, just a calm crossfade
+    intro.classList.add("s4"); reveal();
+    await finished(intro, 900); return finish();
+  }
+  const b = seal.getBoundingClientRect();
+  intro.classList.add("s1");                                  // press the seal
+  await wait(240); if (state !== "opening") return;
+  intro.classList.add("s2");                                  // flap folds up, seal rides with it
+  wait(840).then(() => state === "opening" && Petals.burst(b.left + b.width / 2, b.top - b.height * .6, 34));
+  await finished(document.querySelector(".flap"), 2200); if (state !== "opening") return;
+  intro.classList.add("s3");                                  // bottom of the envelope slides away and fades
+  await finished(document.querySelector(".env-body"), 2000); if (state !== "opening") return;
+  intro.classList.add("s4"); reveal();                        // fade into the main section
+  await finished(intro, 1500);
+  finish();
+};
+intro.addEventListener("click", e => {
+  if (state === "closed") { if (seal.contains(e.target)) open(); }
+  else skip();                                                // second tap anywhere skips ahead
 });
+addEventListener("keydown", e => { if (e.key === "Escape") skip(); });
 
 /* Gentle parallax on the hero photo while scrolling */
 /* (moves only the hero image, at most once per frame, and only while the hero is on screen) */
@@ -669,27 +768,43 @@ const Petals = (function () {
   };
   api.ambient = on => {
     ambientOn = on;
-    if (on) { const n = W < 600 ? 12 : 18; for (let i = 0; i < n; i++) spawnAmbient(false); start(); }
+    if (on) {
+      const n = W < 600 ? 12 : 18; for (let i = 0; i < n; i++) spawnAmbient(false); start();
+      setTimeout(() => { ambientOn = false; }, 20000);   // let the last petals fall, then the canvas goes idle
+    }
   };
   return api;
 })();
 
-/* Countdown */
+/* Countdown with split-flap tiles */
 (function () {
   const target = new Date(CONFIG.date).getTime();
   const pad = n => String(n).padStart(2, "0");
-  const set = (id, v) => {
-    const n = document.getElementById(id);
-    if (n.textContent === v) return;
-    n.textContent = v;
-    n.classList.remove("flip"); void n.offsetWidth; n.classList.add("flip");
-  };
+  const tiles = {};
+  for (const id of ["cd-d", "cd-h", "cd-m", "cd-s"]) {
+    const el = document.getElementById(id);
+    el.innerHTML = '<i class="sz"></i><span class="t" aria-hidden="true"><i></i></span><span class="b" aria-hidden="true"><i></i></span>'
+                 + '<span class="ft" aria-hidden="true"><i></i></span><span class="fb" aria-hidden="true"><i></i></span><span class="sr"></span>';
+    const q = c => el.querySelector(c + " i") || el.querySelector(c);
+    const parts = { sz: el.querySelector(".sz"), t: q(".t"), b: q(".b"), ft: q(".ft"), fb: q(".fb"), sr: el.querySelector(".sr") };
+    const fill = v => { for (const k in parts) parts[k].textContent = v; };
+    let value = null;
+    el.querySelector(".fb").addEventListener("animationend", () => { parts.b.textContent = parts.ft.textContent = value; el.classList.remove("go"); });
+    tiles[id] = v => {
+      if (v === value) return;
+      const old = value; value = v;
+      if (old === null || reduceMotion || el.closest(".offscreen")) { fill(v); el.classList.remove("go"); return; }
+      parts.sz.textContent = parts.t.textContent = parts.fb.textContent = parts.sr.textContent = v;
+      parts.b.textContent = parts.ft.textContent = old;
+      el.classList.remove("go"); void el.offsetWidth; el.classList.add("go");
+    };
+  }
   const tick = () => {
     let diff = Math.max(0, target - Date.now()) / 1000;
     const d = Math.floor(diff / 86400); diff -= d * 86400;
     const h = Math.floor(diff / 3600); diff -= h * 3600;
     const m = Math.floor(diff / 60); const s = Math.floor(diff - m * 60);
-    set("cd-d", String(d)); set("cd-h", pad(h)); set("cd-m", pad(m)); set("cd-s", pad(s));
+    tiles["cd-d"](String(d)); tiles["cd-h"](pad(h)); tiles["cd-m"](pad(m)); tiles["cd-s"](pad(s));
     if (target <= Date.now()) document.getElementById("see-you").textContent = "Just married!";
   };
   tick(); setInterval(tick, 1000);
@@ -700,6 +815,10 @@ const io = new IntersectionObserver(entries => entries.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
 }), { threshold: .15 });
 document.querySelectorAll(".reveal").forEach(n => io.observe(n));
+
+/* Pause looping animations in sections that are off-screen */
+const visIO = new IntersectionObserver(entries => entries.forEach(e => e.target.classList.toggle("offscreen", !e.isIntersecting)));
+document.querySelectorAll("main > section").forEach(n => visIO.observe(n));
 </script>
 </body>
 </html>
