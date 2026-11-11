@@ -45,9 +45,10 @@
     font-family: var(--sans);
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    /* clip (not hidden) keeps native momentum scrolling working on iPhone */
+    overflow-x: clip;
   }
-  body.locked { overflow: hidden; height: 100vh; }
+  body.locked { overflow: hidden; height: 100vh; height: 100svh; touch-action: none; }
 
   /* Desktop: show the invitation as a centered "phone-width" column */
   .page {
@@ -60,6 +61,8 @@
   }
   .backdrop { position: fixed; inset: 0; z-index: -1; }
   .backdrop svg { width: 100%; height: 100%; display: block; }
+  /* on phones the invitation fills the screen, so skip drawing the (costly) pearl backdrop */
+  @media (max-width: 520px) { .backdrop { display: none; } }
 
   section { position: relative; padding: 84px 32px; text-align: center; }
 
@@ -165,7 +168,6 @@
   /* hero satin with the embossed frame: drifts very slightly; parallax on scroll */
   .hero-bg img {
     transform: scale(1.01);
-    translate: 0 calc(var(--sy, 0) * 90px);
   }
   .hero-bg img.drift { animation: drift 28s ease-in-out infinite alternate; }
   @keyframes drift { to { transform: scale(1.04); } }
@@ -268,12 +270,14 @@
   body.opened .music.has-audio { display: flex; }
 
   /* ============ REALISM EFFECTS ============ */
-  /* fine paper grain over the whole invitation and the envelope */
+  /* fine paper grain over the invitation and the envelope.
+     The page's grain is a fixed, screen-sized layer (not page-tall) so phones scroll smoothly. */
   .page::after, .intro-inner::after {
-    content: ""; position: absolute; inset: 0; z-index: 30; pointer-events: none; opacity: .32;
+    content: ""; position: fixed; top: 0; bottom: 0; left: 50%; width: min(100%, 480px); transform: translateX(-50%);
+    z-index: 30; pointer-events: none; opacity: .32;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .29 0 0 0 .6 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .intro-inner::after { z-index: 6; opacity: .4; }
+  .intro-inner::after { position: absolute; inset: 0; left: 0; width: auto; transform: none; z-index: 6; opacity: .4; }
 
   /* light shimmer across the names, like pressed foil */
   .hero .names {
@@ -315,7 +319,7 @@
   .btn:hover::after { transform: translateX(120%); }
 
   /* falling petals */
-  .petals { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 55; }
+  .petals { position: fixed; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 55; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition-duration: .01s !important; transition-delay: 0s !important; }
@@ -473,7 +477,7 @@
           <path d="M96,58 Q103,62 110,58 M100,62 Q96,92 88,122 M106,62 Q110,92 118,124 M103,62 L103,126"/>
         </g>
       </svg>
-      <p class="body">Huurhun bolood ireerei hairaa.</p>
+      <p class="body">Huurhun bolood bjigarai hairaa.</p>
       <img class="mini-seal" src="seal.png" alt="" aria-hidden="true">
     </div>
   </section>
@@ -564,11 +568,19 @@ document.getElementById("seal").addEventListener("click", e => {
 });
 
 /* Gentle parallax on the hero photo while scrolling */
+/* (moves only the hero image, at most once per frame, and only while the hero is on screen) */
 (function () {
   if (reduceMotion) return;
-  const root = document.documentElement.style;
+  const img = document.querySelector(".hero-bg img");
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = scrollY, h = innerHeight;
+    if (y > h) return;
+    img.style.translate = `0 ${(y / h * 90).toFixed(1)}px`;
+  };
   addEventListener("scroll", () => {
-    root.setProperty("--sy", Math.min(1, scrollY / innerHeight).toFixed(3));
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
   }, { passive: true });
 })();
 
@@ -582,10 +594,15 @@ const Petals = (function () {
   const ctx = cv.getContext("2d");
   const COLORS = ["#f6ecf0", "#efdde5", "#e3cbd6", "#f9f2f5", "#ead9cb", "#dcc6d2"];
   let W = 0, H = 0, dpr = 1, list = [], ambientOn = false, running = false, last = 0;
+  /* On phones the address bar showing/hiding while scrolling fires "resize" constantly.
+     Only rebuild the canvas when the width changes or it needs to get taller. */
   const resize = () => {
-    dpr = Math.min(2, devicePixelRatio || 1);
-    W = innerWidth; H = innerHeight;
+    const w = innerWidth, h = Math.max(innerHeight, screen.height || 0);
+    if (w === W && h <= H) return;
+    dpr = Math.min(w < 600 ? 1.5 : 2, devicePixelRatio || 1);
+    W = w; H = h;
     cv.width = W * dpr; cv.height = H * dpr;
+    cv.style.height = H + "px";
   };
   resize(); addEventListener("resize", resize);
 
