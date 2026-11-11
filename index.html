@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="images/hero.jpg">
-<link rel="preload" as="image" href="images/satin-frame.jpg">
+<link rel="preload" as="image" href="hero.jpg">
+<link rel="preload" as="image" href="satin-frame.jpg">
 <!-- Tailwind (utility classes). Preflight is off so it doesn't reset the hand-written styles below. -->
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script>
@@ -92,7 +92,7 @@
 
   /* inside of the envelope */
   /* the framed satin from the main section, so opening the envelope fades straight into it */
-  .env-lining { background: #d9cdd5 url("images/satin-frame.jpg") center / cover no-repeat; }
+  .env-lining { background: #d9cdd5 url("satin-frame.jpg") center / cover no-repeat; }
   .intro.s2 .env-lining::after { opacity: 0; }
   /* soft shadow at the top while it's still inside the pocket, lifting as the envelope slides away */
   .env-lining::after {
@@ -105,7 +105,7 @@
   .env-body > div {
     position: absolute; inset: 0;
     clip-path: polygon(0 0, 50% 42%, 100% 0, 100% 100%, 0 100%);
-    background: #cdbcc6 url("images/hero.jpg") 50% 70% / cover no-repeat;
+    background: #cdbcc6 url("hero.jpg") 50% 70% / cover no-repeat;
     filter: brightness(.98) saturate(1.1);
   }
   .env-body > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(60,35,50,.16), rgba(60,35,50,0) 45%, rgba(60,35,50,.12)); }
@@ -116,12 +116,12 @@
   .flap-front { filter: drop-shadow(0 3px 3px rgba(50,30,45,.28)) drop-shadow(0 16px 20px rgba(50,30,45,.3)); }
   .flap-front > div {
     position: absolute; inset: 0; clip-path: polygon(0 0, 100% 0, 50% 56%);
-    background: #cdbcc6 url("images/hero.jpg") 50% 12% / cover no-repeat;
+    background: #cdbcc6 url("hero.jpg") 50% 12% / cover no-repeat;
     filter: brightness(1.07) saturate(1.1);
   }
   .flap-front > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 40%, rgba(60,35,50,.16)); }
   .flap-back { transform: rotateX(180deg); }
-  .flap-back > div { position: absolute; inset: 0; clip-path: polygon(0 100%, 100% 100%, 50% 44%); background: #c9bac4 url("images/lining.jpg") 30% 50% / cover no-repeat; filter: brightness(.9); }
+  .flap-back > div { position: absolute; inset: 0; clip-path: polygon(0 100%, 100% 100%, 50% 44%); background: #c9bac4 url("lining.jpg") 30% 50% / cover no-repeat; filter: brightness(.9); }
 
   .seal {
     position: absolute; left: 50%; top: 56%; width: 156px; height: 156px;
@@ -137,7 +137,7 @@
     position: absolute; inset: 0; pointer-events: none; transition: opacity .3s;
     background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 60%);
     background-size: 260% 100%; animation: sweep 4.5s ease-in-out 1s infinite; mix-blend-mode: soft-light;
-    -webkit-mask: url("images/seal.png") center / contain no-repeat; mask: url("images/seal.png") center / contain no-repeat;
+    -webkit-mask: url("seal.png") center / contain no-repeat; mask: url("seal.png") center / contain no-repeat;
   }
   /* light that follows the pointer / phone tilt, plus a soft vignette */
   .glare {
@@ -210,7 +210,7 @@
 
   /* ============ PEARL / PHOTO ============ */
   /* the pearl frame picture sets the section's shape; the photo sits inside its oval
-     (positions are percentages of images/pearl-frame.jpg, 941 x 1672) */
+     (positions are percentages of pearl-frame.jpg, 941 x 1672) */
   .photo { padding: 0; aspect-ratio: 941 / 1672; background: #e3cfe0; }
   .photo-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .photo-oval {
@@ -385,7 +385,7 @@
         <div class="flap-face flap-back"><div></div></div>
         <div class="flap-face flap-front"><div></div></div>
         <button class="seal" id="seal" aria-label="Open the invitation">
-          <img src="images/seal.png" alt="" draggable="false">
+          <img src="seal.png" alt="" draggable="false">
           <span class="shine" aria-hidden="true"></span>
         </button>
       </div>
@@ -398,9 +398,9 @@
 
   <!-- ================= HERO ================= -->
   <section class="hero" id="top">
-    <!-- Background: satin with the embossed frame (replace images/satin-frame.jpg to change it) -->
+    <!-- Background: satin with the embossed frame (replace satin-frame.jpg to change it) -->
     <div class="hero-bg absolute inset-0 overflow-hidden" aria-hidden="true">
-      <img src="images/satin-frame.jpg" alt="" class="absolute inset-0 h-full w-full object-cover object-center will-change-transform" fetchpriority="high">
+      <img src="satin-frame.jpg" alt="" class="absolute inset-0 h-full w-full object-cover object-center will-change-transform" fetchpriority="high">
       <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,rgba(50,30,45,.16))]"></div>
     </div>
 
@@ -431,9 +431,9 @@
 
   <!-- ================= PHOTO ================= -->
   <section class="photo">
-    <img class="photo-bg" src="images/pearl-frame.jpg" alt="" aria-hidden="true" loading="lazy">
+    <img class="photo-bg" src="pearl-frame.jpg" alt="" aria-hidden="true" loading="lazy">
     <div class="photo-oval reveal">
-      <img src="images/photo.jpg" alt="The couple" loading="lazy">
+      <img src="photo.jpg" alt="The couple" loading="lazy">
     </div>
     <p class="photo-quote reveal d1">“Whatever our souls are made of,<br>his and mine are the same.”</p>
   </section>
@@ -474,7 +474,7 @@
         </g>
       </svg>
       <p class="body">Huurhun bolood ireerei hairaa.</p>
-      <img class="mini-seal" src="images/seal.png" alt="" aria-hidden="true">
+      <img class="mini-seal" src="seal.png" alt="" aria-hidden="true">
     </div>
   </section>
 </main>
