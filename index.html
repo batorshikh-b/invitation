@@ -68,14 +68,6 @@
   h2.title { font-family: var(--serif); font-weight: 400; font-size: 40px; letter-spacing: .02em; line-height: 1.05; }
   h2.script { font-size: 58px; }
   p.body { font-size: 13.5px; line-height: 1.75; color: var(--ink-soft); max-width: 320px; margin: 0 auto; }
-  .btn {
-    display: inline-block; margin-top: 26px; padding: 14px 30px;
-    border: 1px solid var(--line); outline: 1px solid var(--line); outline-offset: 3px;
-    font-family: var(--sans); font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase;
-    color: var(--ink); text-decoration: none; background: transparent; cursor: pointer;
-    transition: background .3s, color .3s;
-  }
-  .btn:hover { background: var(--ink); color: var(--paper); }
 
   .reveal { opacity: 0; transform: translateY(26px); transition: opacity 1.1s ease, transform 1.1s ease; }
   .reveal.in { opacity: 1; transform: none; }
@@ -308,11 +300,22 @@
     color: #5b4657; text-shadow: 0 1px 0 rgba(255,255,255,.6);
   }
 
-  /* ============ LOCATION ============ */
-  .location { background: linear-gradient(180deg, #ede6ea, #e6dde2); }
-  .location .script { font-size: 44px; margin: 10px 0 8px; }
-  .location .caps { margin-bottom: 22px; }
-  .villa { width: 100%; max-width: 330px; margin: 28px auto 0; display: block; }
+  /* ============ THE DAY ============ */
+  .day { background: linear-gradient(180deg, #e6dde2, #ded2d9); padding: 84px 24px 96px; }
+  .drape { position: absolute; top: 0; bottom: 0; width: 24%; height: 100%; pointer-events: none; }
+  .drape.l { left: 0; } .drape.r { right: 0; transform: scaleX(-1); }
+  .day .inner { position: relative; z-index: 1; max-width: 260px; margin: 0 auto; }
+  .day h2 { font-size: 62px; }
+  .day .lead { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-soft); margin: 12px 0 30px; }
+  .timeline { list-style: none; text-align: left; position: relative; padding-left: 30px; }
+  .timeline::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 1px; background: var(--line); }
+  .timeline li { position: relative; padding-bottom: 30px; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ""; position: absolute; left: -28px; top: 9px; width: 9px; height: 9px; transform: rotate(45deg); background: var(--paper); border: 1px solid var(--ink-soft); }
+  .timeline .time { font-family: var(--serif); font-size: 21px; }
+  .timeline .time small { font-size: 11px; letter-spacing: .15em; }
+  .timeline .what { font-size: 12px; letter-spacing: .25em; text-transform: uppercase; margin: 2px 0; }
+  .timeline .note { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-soft); }
 
   /* ============ DRESS CODE ============ */
   .dress { background: var(--paper); padding: 70px 26px; }
@@ -370,18 +373,11 @@
   @keyframes glint { 0% { transform: translateX(-100%); } 35%, 100% { transform: translateX(100%); } }
 
 
-  /* villa drawing draws itself in */
-  .villa g > * { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 3.6s cubic-bezier(.4,0,.2,1) .4s; }
-  .villa.in g > * { stroke-dashoffset: 0; }
-
-  /* light sweep across buttons on hover */
-  .btn { position: relative; overflow: hidden; }
-  .btn::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%);
-    transform: translateX(-120%); transition: transform .8s ease;
-  }
-  .btn:hover::after { transform: translateX(120%); }
+  /* timeline line grows as you reach it */
+  .timeline::before { transform: scaleY(0); transform-origin: top; transition: transform 2.6s cubic-bezier(.4,0,.2,1); }
+  .timeline.in::before { transform: none; }
+  .timeline li.in::before { animation: pop .6s cubic-bezier(.3,1.6,.5,1) .3s both; }
+  @keyframes pop { from { transform: rotate(45deg) scale(0); } }
 
   /* sections scrolled out of view pause their looping animations (saves battery) */
   .offscreen *, .offscreen *::before, .offscreen *::after { animation-play-state: paused !important; }
@@ -412,6 +408,22 @@
       <feColorMatrix in="ob" type="matrix" values="0 0 0 0 .3  0 0 0 0 .2  0 0 0 0 .27  0 0 0 .45 0" result="shadow"/>
       <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
     </filter>
+    <filter id="emboss-soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="b"/>
+      <feSpecularLighting in="b" surfaceScale="4" specularConstant=".75" specularExponent="12" lighting-color="#ffffff" result="s">
+        <feDistantLight azimuth="235" elevation="42"/>
+      </feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+      <feOffset in="SourceAlpha" dx="2" dy="3" result="o"/>
+      <feGaussianBlur in="o" stdDeviation="2.5" result="ob"/>
+      <feColorMatrix in="ob" type="matrix" values="0 0 0 0 .3  0 0 0 0 .2  0 0 0 0 .27  0 0 0 .4 0" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+    <linearGradient id="g-drape" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d2c3cb"/><stop offset=".12" stop-color="#f1eaee"/><stop offset=".24" stop-color="#cbbac4"/>
+      <stop offset=".38" stop-color="#f3edf0"/><stop offset=".52" stop-color="#cdbdc6"/><stop offset=".66" stop-color="#efe7eb"/>
+      <stop offset=".8" stop-color="#cdbcc5"/><stop offset=".92" stop-color="#ece3e8"/><stop offset="1" stop-color="#cbbac3"/>
+    </linearGradient>
     <!-- Mother-of-pearl marbling -->
     <filter id="pearl" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency=".006 .018" numOctaves="4" seed="7"/>
@@ -488,9 +500,9 @@
       <div class="hero-text printed">
         <p class="serif" style="font-size:16px;line-height:1.3">Dating<br>Together</p>
         <h1 class="script names" tabindex="-1">Narangerel<span class="amp">&amp;</span>Batorshikh</h1>
-        <p class="date t2">12 · 06 · 2027</p>
-        <p class="venue t3">Villa Serena</p>
-        <p class="caps t3" style="margin-top:4px">Lake Como · Italy</p>
+        <p class="date t2">20 · 12 · 2026</p>
+        <p class="venue t3">SkyWing Center</p>
+        <p class="caps t3" style="margin-top:4px">Zaisan · Mongolia</p>
       </div>
     </div>
     <div class="scroll-cue caps">Scroll<span></span></div>
@@ -517,15 +529,20 @@
     <p class="photo-quote reveal d1">“Whatever our souls are made of,<br>his and mine are the same.”</p>
   </section>
 
-  <!-- ================= LOCATION ================= -->
-  <section class="location">
-    <h2 class="title reveal">Location</h2>
-    <p class="script reveal d1">Villa Serena</p>
-    <p class="caps reveal d1">Lake Como · Italy</p>
-    <p class="body reveal d2">Set on the quiet western shore of Lake Como, Villa Serena will host our celebration among terraced gardens and old cypress trees overlooking the water.</p>
-    <p class="body reveal d2" style="margin-top:12px">We recommend arriving a little early to settle in and enjoy the views before the ceremony begins.</p>
-    <svg class="villa reveal d3" id="villa" viewBox="0 0 260 150" aria-label="Drawing of Villa Serena"></svg>
-    <a class="btn reveal d3" id="directions" target="_blank" rel="noopener">Get directions</a>
+  <!-- ================= THE DAY ================= -->
+  <section class="day">
+    <svg class="drape l" viewBox="0 0 120 900" preserveAspectRatio="none" aria-hidden="true"><use href="#drapeArt"/></svg>
+    <svg class="drape r" viewBox="0 0 120 900" preserveAspectRatio="none" aria-hidden="true"><use href="#drapeArt"/></svg>
+    <div class="inner">
+      <h2 class="script reveal">The Day</h2>
+      <p class="lead reveal d1">A day to hangout,<br>our first out date</p>
+      <ol class="timeline reveal-line">
+        <li class="reveal"><div class="time">17:00 <small>PM</small></div><div class="what">Pick Up</div><div class="note">Pickup my gorgeuos girl </div></li>
+        <li class="reveal"><div class="time">19:00 <small>PM</small></div><div class="what">Photo Boot</div><div class="note">Take photos together</div></li>
+        <li class="reveal"><div class="time">20:00 <small>PM</small></div><div class="what">Dinner</div><div class="note">Dinner at some shit</div></li>
+        <li class="reveal"><div class="time">21:40 <small>PM</small></div><div class="what">Movie</div><div class="note">Avengers Doomsday</div></li>
+      </ol>
+    </div>
   </section>
 
   <!-- ================= DRESS CODE ================= -->
@@ -562,56 +579,24 @@
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>
 </button>
 
+<!-- Drape art (static) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="drapeArt" filter="url(#emboss-soft)">
+    <path d="M0,0 H112 C104,120 86,250 66,352 C92,420 108,600 116,900 H0 Z" fill="url(#g-drape)"/>
+    <path d="M0,0 H40 C38,140 30,260 28,352 C34,460 40,640 44,900 H0 Z" fill="#ffffff" opacity=".18"/>
+    <ellipse cx="58" cy="356" rx="34" ry="8" fill="#e8dfe4" transform="rotate(-12 58 356)"/>
+    <path d="M78,356 C84,380 86,400 84,420" stroke="#cbbac3" stroke-width="3" fill="none"/>
+    <path d="M78,420 h12 l6,40 h-24 z" fill="#e4d9df"/>
+    <path d="M76,430 v28 M80,430 v30 M84,430 v30 M88,430 v30 M92,430 v28" stroke="#c4b3bd" stroke-width=".8"/>
+  </g>
+</defs></svg>
+
 <script>
 /* ============ EDIT YOUR DETAILS HERE ============ */
 const CONFIG = {
-  date: "2027-06-12T17:00:00+02:00",               // ceremony start, used by the countdown
-  directions: "https://maps.google.com/?q=Lake+Como+Italy",
+  date: "2026-12-20T17:00:00+08:00",               // ceremony start, used by the countdown (+08:00 = Ulaanbaatar time)
   music: ""                                        // e.g. "music.mp3" (file next to index.html) — shows the sound button
 };
-
-/* small seeded random so the artwork is the same on every load */
-let seed = 11;
-const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-const NS = "http://www.w3.org/2000/svg";
-const el = (tag, attrs = {}, parent) => {
-  const n = document.createElementNS(NS, tag);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(n);
-  return n;
-};
-
-/* Villa line drawing */
-(function () {
-  const s = document.getElementById("villa");
-  const g = el("g", { fill: "none", stroke: "#6f6068", "stroke-width": .7, "stroke-linecap": "round" }, s);
-  el("path", { d: "M2,136 H258" }, g);
-  el("rect", { x: 50, y: 52, width: 160, height: 78 }, g);
-  el("rect", { x: 46, y: 46, width: 168, height: 6 }, g);
-  el("path", { d: "M106,46 L130,30 L154,46" }, g);
-  for (let x = 48; x <= 212; x += 6) el("path", { d: `M${x},46 v-5` }, g);
-  el("path", { d: "M46,41 H214" }, g);
-  for (let row = 0; row < 3; row++)
-    for (let c = 0; c < 9; c++) {
-      const x = 58 + c * 17.5, y = 60 + row * 22;
-      if (row === 2 && c === 4) continue;
-      el("path", { d: `M${x},${y + 13} V${y + 3} Q${x + 4},${y - 1} ${x + 8},${y + 3} V${y + 13} Z M${x + 4},${y + 1} V${y + 13}` }, g);
-    }
-  el("path", { d: "M122,130 V112 Q130,102 138,112 V130" }, g);
-  el("path", { d: "M112,130 H148 M108,133 H152 M104,136 H156" }, g);
-  el("rect", { x: 14, y: 84, width: 36, height: 46 }, g);
-  el("rect", { x: 210, y: 84, width: 36, height: 46 }, g);
-  for (const x of [20, 34, 216, 230]) el("rect", { x, y: 94, width: 8, height: 12 }, g);
-  const tree = (cx, base, h, w) => el("path", { d: `M${cx},${base} C${cx - w},${base - h * .3} ${cx - w * .6},${base - h * .8} ${cx},${base - h} C${cx + w * .6},${base - h * .8} ${cx + w},${base - h * .3} ${cx},${base}` }, g);
-  tree(6, 136, 70, 8); tree(248, 136, 76, 8); tree(256, 136, 54, 6);
-  for (let i = 0; i < 14; i++) el("circle", { cx: 2 + rnd() * 40, cy: 112 + rnd() * 22, r: 3 + rnd() * 4 }, g);
-  for (let i = 0; i < 14; i++) el("circle", { cx: 218 + rnd() * 40, cy: 112 + rnd() * 22, r: 3 + rnd() * 4 }, g);
-  /* normalise every stroke so the "draw in" animation works on all shapes */
-  g.querySelectorAll("*").forEach(n => n.setAttribute("pathLength", 1));
-})();
-
-/* Links */
-document.getElementById("directions").href = CONFIG.directions;
 
 /* Envelope opening */
 const intro = document.getElementById("intro");
@@ -850,7 +835,7 @@ const Petals = (function () {
 const io = new IntersectionObserver(entries => entries.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
 }), { threshold: .15 });
-document.querySelectorAll(".reveal").forEach(n => io.observe(n));
+document.querySelectorAll(".reveal, .reveal-line").forEach(n => io.observe(n));
 
 /* Pause looping animations in sections that are off-screen */
 const visIO = new IntersectionObserver(entries => entries.forEach(e => e.target.classList.toggle("offscreen", !e.isIntersecting)));
