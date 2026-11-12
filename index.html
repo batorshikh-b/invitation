@@ -102,14 +102,15 @@
   }
 
   /* the envelope's back pocket (covers the card, V-shaped opening at the top) */
-  .env-body { filter: drop-shadow(0 -2px 5px rgba(50,30,45,.4)); transition: transform 1.6s var(--ease-in-out), opacity 1.3s ease .15s; }
+  .env-body { filter: drop-shadow(0 -2px 5px rgba(50,30,45,.4)); transition: transform 1.8s var(--ease-in-out), opacity 1.2s ease .5s; }
   .env-body > div {
     position: absolute; inset: 0; clip-path: polygon(0.00% 0.00%, 100.00% 0.00%, 100.00% 3.88%, 95.32% 10.26%, 89.33% 16.91%, 82.73% 23.56%, 76.14% 30.49%, 70.14% 37.28%, 65.59% 42.69%, 62.25% 49.40%, 64.34% 51.59%, 65.30% 54.03%, 65.04% 56.52%, 63.58% 58.88%, 61.05% 60.90%, 57.64% 62.44%, 53.63% 63.37%, 49.33% 63.61%, 45.08% 63.15%, 41.22% 62.02%, 38.06% 60.32%, 35.84% 58.17%, 34.75% 55.75%, 34.87% 53.26%, 36.19% 50.88%, 38.61% 48.80%, 38.73% 44.21%, 32.97% 37.28%, 27.34% 30.70%, 21.22% 23.77%, 14.99% 16.84%, 8.75% 10.26%, 4.44% 6.10%, 0.00% 3.19%, 0.00% 0.00%, 0.00% 100.00%, 100.00% 100.00%, 100.00% 0.00%);
     background: #cdbcc6 url("envelope.jpg") 0 0 / 100% 100% no-repeat;
   }
 
   /* envelope folds: left, right and bottom, cut from the same photo along the classic envelope seams */
-  .fold { transition: transform 1.9s var(--ease-in-out), filter 1.2s ease; filter: drop-shadow(0 0 0 rgba(50,30,45,0)); }
+  /* the folds and the whole-body copy move as one piece (same timing), so no seams ever show */
+  .fold { transition: transform 1.8s var(--ease-in-out), opacity 1.2s ease .5s; }
   .fold > div { position: absolute; inset: 0; background: #cdbcc6 url("envelope.jpg") 0 0 / 100% 100% no-repeat; }
   .fold-l > div { clip-path: polygon(0.00% 100.00%, 49.33% 63.61%, 45.08% 63.15%, 41.22% 62.02%, 38.06% 60.32%, 35.84% 58.17%, 34.75% 55.75%, 34.87% 53.26%, 36.19% 50.88%, 38.61% 48.80%, 38.73% 44.21%, 32.97% 37.28%, 27.34% 30.70%, 21.22% 23.77%, 14.99% 16.84%, 8.75% 10.26%, 4.44% 6.10%, 0.00% 3.19%); }
   .fold-r > div { clip-path: polygon(100.00% 3.88%, 95.32% 10.26%, 89.33% 16.91%, 82.73% 23.56%, 76.14% 30.49%, 70.14% 37.28%, 65.59% 42.69%, 62.25% 49.40%, 64.34% 51.59%, 65.30% 54.03%, 65.04% 56.52%, 63.58% 58.88%, 61.05% 60.90%, 57.64% 62.44%, 53.63% 63.37%, 49.33% 63.61%, 100.00% 100.00%); }
@@ -117,10 +118,6 @@
   .fold-l { transform-origin: 0 50%; }
   .fold-r { transform-origin: 100% 50%; }
   .fold-b { transform-origin: 50% 100%; }
-  .intro.s3 .fold { filter: drop-shadow(0 6px 12px rgba(50,30,45,.32)); }
-  .intro.s3 .fold-l { transform: translateX(-21%) rotateY(16deg); }
-  .intro.s3 .fold-r { transform: translateX(21%) rotateY(-16deg); }
-  .intro.s3 .fold-b { transform: translateY(14%) rotateX(30deg); transition-delay: .15s; }
   .fold { z-index: 1; }
 
 
@@ -175,7 +172,8 @@
   /* open sequence: s1 press the seal -> s2 flap folds up (seal goes with it)
      -> s3 the envelope's bottom slides down while fading out -> s4 fade into the main section */
   /* the whole-body copy covers the seams between the folds while closed; it steps aside as they move */
-  .intro.s3 .env-body { opacity: 0; transition: opacity .12s; }
+  /* after the flap opens, the lower envelope slides down off the screen, fading as it goes */
+  .intro.s3 .env-body, .intro.s3 .fold { transform: translateY(100%); opacity: 0; }
   /* wax release: the seal lifts off the paper with a tiny wobble and stays intact on the flap */
   .intro.s1 .seal { animation: seal-release 1s var(--ease-out) forwards; filter: drop-shadow(0 6px 8px rgba(60,35,50,.32)); transition: filter 1s ease; }
   @keyframes seal-release {
@@ -537,7 +535,7 @@
       <h2 class="script reveal">The Day</h2>
       <p class="lead reveal d1">A day to hangout,<br>our first out date</p>
       <ol class="timeline reveal-line">
-        <li class="reveal"><div class="time">17:00 <small>PM</small></div><div class="what">Pick Up</div><div class="note">Pickup my gorgeuos girl </div></li>
+        <li class="reveal"><div class="time">17:00 <small>PM</small></div><div class="what">Pick Up</div><div class="note">Pickup my gorgeous girl </div></li>
         <li class="reveal"><div class="time">19:00 <small>PM</small></div><div class="what">Photo Boot</div><div class="note">Take photos together</div></li>
         <li class="reveal"><div class="time">20:00 <small>PM</small></div><div class="what">Dinner</div><div class="note">Dinner at some shit</div></li>
         <li class="reveal"><div class="time">21:40 <small>PM</small></div><div class="what">Movie</div><div class="note">Avengers Doomsday</div></li>
@@ -675,8 +673,8 @@ const open = async () => {
   await wait(950); if (!alive()) return;
   intro.classList.add("s2");                                  // flap lifts slowly, seal rides with it
   await finished(q(".flap"), 3000); if (!alive()) return;
-  intro.classList.add("s3");                                  // side and bottom folds part
-  await wait(1100); if (!alive()) return;
+  intro.classList.add("s3");                                  // lower envelope slides down and fades
+  await wait(1300); if (!alive()) return;
   intro.classList.add("s4"); reveal();                        // fade into the main section
   await finished(intro, 1500);
   finish();
